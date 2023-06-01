@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using ProyectoTienda2.Data;
@@ -6,6 +7,8 @@ using ProyectoTienda2.Helpers;
 using PyoyectoNugetTienda;
 using System.Net.Http.Headers;
 using System.Text;
+using Newtonsoft.Json;
+using Microsoft.Extensions.Caching.Distributed;
 
 namespace ProyectoTienda2.Services
 {
@@ -14,50 +17,19 @@ namespace ProyectoTienda2.Services
         private MediaTypeWithQualityHeaderValue Header;
         private string UrlApiProyectoTienda;
         private ProyectoTiendaContext context;
+        private IDistributedCache cache;
 
-        public ServiceApi(IConfiguration configuration, ProyectoTiendaContext context)
+        public ServiceApi(IConfiguration configuration, ProyectoTiendaContext context, IDistributedCache cache)
         {
             this.UrlApiProyectoTienda =
                 configuration.GetValue<string>("ApiUrls:ApiProyectoTienda");
             this.Header =
                 new MediaTypeWithQualityHeaderValue("application/json");
             this.context = context;
+            this.cache = cache;
         }
 
-        //public async Task<string> GetTokenAsync
-        //    (string email, string password)
-        //{
-        //    using (HttpClient client = new HttpClient())
-        //    {
-        //        string request = "/api/AuthArtista/Login";
-        //        client.BaseAddress = new Uri(this.UrlApiProyectoTienda);
-        //        client.DefaultRequestHeaders.Clear();
-        //        client.DefaultRequestHeaders.Accept.Add(this.Header);
-        //        LoginModel model = new LoginModel
-        //        {
-        //            Email = email,
-        //            Password = password
-        //        };
-        //        string jsonModel = JsonConvert.SerializeObject(model);
-        //        StringContent content =
-        //            new StringContent(jsonModel, Encoding.UTF8, "application/json");
-        //        HttpResponseMessage response =
-        //            await client.PostAsync(request, content);
-        //        if (response.IsSuccessStatusCode)
-        //        {
-        //            string data =
-        //                await response.Content.ReadAsStringAsync();
-        //            JObject jsonObject = JObject.Parse(data);
-        //            string token =
-        //                jsonObject.GetValue("response").ToString();
-        //            return token;
-        //        }
-        //        else
-        //        {
-        //            return null;
-        //        }
-        //    }
-        //}
+        
 
         private async Task<T> CallApiAsync<T>(string request)
         {
@@ -103,6 +75,9 @@ namespace ProyectoTienda2.Services
                 }
             }
         }
+
+
+        
 
         //METODO PROTEGIDO
 

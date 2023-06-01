@@ -11,18 +11,15 @@ BlobServiceClient blobServiceClient = new BlobServiceClient(azureKeys);
 builder.Services.AddTransient<BlobServiceClient>(x => blobServiceClient);
 
 // Add services to the container.
-string connectionString = builder.Configuration.GetConnectionString("SqlProyectoTiendaAzure");
+string connectionString = builder.Configuration.GetConnectionString("CacheRedis");
 
 builder.Services.AddTransient<ServiceApi>();
 builder.Services.AddTransient<ServiceStorageBlobs>();
-builder.Services.AddDbContext<ProyectoTiendaContext>(options => options.UseSqlServer(connectionString));
-
-builder.Services.AddSession(options =>
+builder.Services.AddStackExchangeRedisCache(options =>
 {
-    options.IdleTimeout = TimeSpan.FromMinutes(30);
+    options.Configuration = connectionString;
+    options.InstanceName = "ec2-mvc-proyecto-tienda";
 });
-
-builder.Services.AddMemoryCache();
 
 //SEGURIDAD
 builder.Services.AddAuthentication(options =>
