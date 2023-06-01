@@ -14,14 +14,17 @@ namespace ProyectoTienda2.Services
         private MediaTypeWithQualityHeaderValue Header;
         private string UrlApiProyectoTienda;
         private ProyectoTiendaContext context;
+        private ServiceStorageS3 serviceS3;
 
-        public ServiceApi(IConfiguration configuration, ProyectoTiendaContext context)
+        public ServiceApi(IConfiguration configuration, ProyectoTiendaContext context,
+            ServiceStorageS3 serviceS3)
         {
             this.UrlApiProyectoTienda =
                 configuration.GetValue<string>("ApiUrls:ApiProyectoTienda");
             this.Header =
                 new MediaTypeWithQualityHeaderValue("application/json");
             this.context = context;
+            this.serviceS3 = serviceS3;
         }
 
         //public async Task<string> GetTokenAsync

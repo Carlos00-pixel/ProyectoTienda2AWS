@@ -1,3 +1,4 @@
+using Amazon.S3;
 using Azure.Storage.Blobs;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.EntityFrameworkCore;
@@ -10,12 +11,19 @@ string azureKeys = builder.Configuration.GetValue<string>("AzureKeys:StorageAcco
 BlobServiceClient blobServiceClient = new BlobServiceClient(azureKeys);
 builder.Services.AddTransient<BlobServiceClient>(x => blobServiceClient);
 
+
 // Add services to the container.
-string connectionString = builder.Configuration.GetConnectionString("SqlProyectoTiendaAzure");
+string connectionString = builder.Configuration.GetConnectionString("MySqlProyectoTienda");
+
+builder.Services.AddAWSService<IAmazonS3>();
 
 builder.Services.AddTransient<ServiceApi>();
 builder.Services.AddTransient<ServiceStorageBlobs>();
-builder.Services.AddDbContext<ProyectoTiendaContext>(options => options.UseSqlServer(connectionString));
+builder.Services.AddTransient<ServiceStorageS3>();
+
+builder.Services.AddDbContext<ProyectoTiendaContext>
+    (options => options.UseMySql(connectionString
+    , ServerVersion.AutoDetect(connectionString)));
 
 builder.Services.AddSession(options =>
 {
