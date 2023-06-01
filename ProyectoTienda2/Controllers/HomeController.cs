@@ -18,30 +18,38 @@ namespace ProyectoTienda2.Controllers
         private ServiceApi service;
         private ServiceStorageBlobs serviceBlob;
         private string containerName = "proyectotienda";
+        private ServiceAwsCache serviceAws;
+
         public HomeController
             (ILogger<HomeController> logger, ServiceApi service,
-            ServiceStorageBlobs serviceBlob)
+            ServiceStorageBlobs serviceBlob, ServiceAwsCache serviceAws)
         {
             _logger = logger;
             this.service = service;
             this.serviceBlob = serviceBlob;
+            this.serviceAws = serviceAws;
         }
 
         public async Task<IActionResult> Index(int? idfavorito)
         {
             if(idfavorito != null)
             {
-                List<int> favoritos;
-                if(HttpContext.Session.GetObject<List<int>>("FAVORITOS") == null)
-                {
-                    favoritos = new List<int>();
-                }
-                else
-                {
-                    favoritos = HttpContext.Session.GetObject<List<int>>("FAVORITOS");
-                }
-                favoritos.Add(idfavorito.Value);
-                HttpContext.Session.SetObject("FAVORITOS", favoritos);
+                //List<int> favoritos;
+                //if(HttpContext.Session.GetObject<List<int>>("FAVORITOS") == null)
+                //{
+                //    favoritos = new List<int>();
+                //}
+                //else
+                //{
+                //    favoritos = HttpContext.Session.GetObject<List<int>>("FAVORITOS");
+                //}
+                //favoritos.Add(idfavorito.Value);
+                //HttpContext.Session.SetObject("FAVORITOS", favoritos);
+                //DEBEMOS BUSCAR EL COCHE A ALMACENAR DENTRO DEL XML
+                DatosArtista cuadro = await this.service.FindInfoArteAsync(idfavorito.Value);
+                await this.serviceAws.AddFavoritoAsync(cuadro);
+               
+
             }
             DatosArtista infoArtes = await this.service.GetInfoArteAsync();
             foreach (InfoProducto c in infoArtes.listaProductos)
@@ -74,26 +82,29 @@ namespace ProyectoTienda2.Controllers
         {
             List<int> idsFavoritos =
                 HttpContext.Session.GetObject<List<int>>("FAVORITOS");
-            if (idsFavoritos == null)
-            {
-                ViewData["MENSAJE"] = "No existen favoritos almacenados";
-                return View();
-            }
-            else
-            {
-                if (ideliminar != null)
-                {
-                    idsFavoritos.Remove(ideliminar.Value);
-                    if (idsFavoritos.Count == 0)
-                    {
-                        HttpContext.Session.Remove("FAVORITOS");
-                    }
-                    else
-                    {
-                        HttpContext.Session.SetObject("FAVORITOS", idsFavoritos);
-                    }
-                }
-                DatosArtista infoArtes = this.service.GetInfoArteSession(idsFavoritos);
+            //if (idsFavoritos == null)
+            //{
+            //    ViewData["MENSAJE"] = "No existen favoritos almacenados";
+            //    return View();
+            //}
+            //else
+            //{
+            //    if (ideliminar != null)
+            //    {
+            //        idsFavoritos.Remove(ideliminar.Value);
+            //        if (idsFavoritos.Count == 0)
+            //        {
+            //            HttpContext.Session.Remove("FAVORITOS");
+            //        }
+            //        else
+            //        {
+            //            HttpContext.Session.SetObject("FAVORITOS", idsFavoritos);
+            //        }
+            //    }
+            List<DatosArtista> cuadros = await this.serviceAws.GetFavoritosAsync();
+            return View(cuadros);
+
+            DatosArtista infoArtes = this.service.GetInfoArteSession(idsFavoritos);
                 
                 //foreach (InfoProducto c in infoArtes.listaProductos)
                 //{
@@ -118,8 +129,16 @@ namespace ProyectoTienda2.Controllers
                 //    }
                 //}
                 return View(infoArtes);
-            }
+            
         }
+
+
+        public async Task<IActionResult> EliminarFavorito(int idfavorito)
+        {
+            await this.serviceAws.DeleteFavoritoAsync(idfavorito);
+            return RedirectToAction("ProductosFavoritos");
+        }
+
 
         public async Task<IActionResult> Details(int idproducto)
         {
