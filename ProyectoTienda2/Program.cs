@@ -14,12 +14,17 @@ builder.Services.AddTransient<BlobServiceClient>(x => blobServiceClient);
 string connectionString = builder.Configuration.GetConnectionString("MySqlProyectoTienda");
 
 builder.Services.AddTransient<ServiceApi>();
+builder.Services.AddTransient<ServiceAwsCache>();
 builder.Services.AddTransient<ServiceStorageBlobs>();
+builder.Services.AddDbContext<ProyectoTiendaContext>
+    (options => options.UseMySql(connectionString
+    , ServerVersion.AutoDetect(connectionString)));
 builder.Services.AddStackExchangeRedisCache(options =>
 {
     options.Configuration = "cache-proyecto-tienda.8u9ggu.ng.0001.use1.cache.amazonaws.com:6379";
     options.InstanceName = "ec2-mvc-proyecto-tienda";
 });
+
 
 //SEGURIDAD
 builder.Services.AddAuthentication(options =>
@@ -58,7 +63,7 @@ app.UseRouting();
 app.UseAuthentication();
 app.UseAuthorization();
 
-app.UseSession();
+
 
 app.UseMvc(route =>
 {

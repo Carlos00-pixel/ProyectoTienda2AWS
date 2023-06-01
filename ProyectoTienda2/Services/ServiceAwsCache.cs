@@ -67,6 +67,7 @@ namespace ProyectoTienda2.Services
                 }
             }
         }
+
         public async Task<List<DatosArtista>> GetFavoritosAsync()
         {
 
