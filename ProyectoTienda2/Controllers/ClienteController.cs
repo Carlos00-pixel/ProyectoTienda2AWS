@@ -16,11 +16,13 @@ namespace ProyectoTienda2.Controllers
         private ServiceApi service;
         private ServiceStorageBlobs serviceBlob;
         private string containerName = "proyectotienda";
+        private string BucketUrl;
 
-        public ClienteController(ServiceApi service, ServiceStorageBlobs serviceBlob)
+        public ClienteController(ServiceApi service, ServiceStorageBlobs serviceBlob, IConfiguration configuration)
         {
             this.service = service;
             this.serviceBlob = serviceBlob;
+            this.BucketUrl = configuration.GetValue<string>("AWS:BucketUrl");
         }
 
         public async Task<IActionResult> DetallesCliente(int idcliente)
@@ -29,7 +31,9 @@ namespace ProyectoTienda2.Controllers
 
             DatosArtista cliente = await this.service.FindCliente(idcliente);
 
-            ViewData["PERFIL"] = await this.serviceBlob.GetBlobAsync(this.containerName, cliente.cliente.Imagen);
+            //ViewData["PERFIL"] = await this.serviceBlob.GetBlobAsync(this.containerName, cliente.cliente.Imagen);
+
+            ViewData["PERFIL"] = this.BucketUrl + cliente.cliente.Imagen;
 
             return View(cliente);
         }
@@ -40,7 +44,9 @@ namespace ProyectoTienda2.Controllers
             idcliente = int.Parse(HttpContext.User.FindFirst(ClaimTypes.NameIdentifier).Value);
 
             cliente = await this.service.FindCliente(idcliente);
-            ViewData["PERFIL"] = await this.serviceBlob.GetBlobAsync(this.containerName, cliente.cliente.Imagen);
+            //ViewData["PERFIL"] = await this.serviceBlob.GetBlobAsync(this.containerName, cliente.cliente.Imagen);
+            ViewData["PERFIL"] = this.BucketUrl + cliente.cliente.Imagen;
+
             return View(cliente);
         }
 

@@ -13,24 +13,18 @@ namespace ProyectoTienda2.Controllers
 {
     public class HomeController : Controller
     {
-        private readonly ILogger<HomeController> _logger;
 
         private ServiceApi service;
         private ServiceStorageBlobs serviceBlob;
         private string containerName = "proyectotienda";
         private string BucketUrl;
-        private ServiceStorageS3 serviceS3;
 
         public HomeController
-            (ILogger<HomeController> logger, ServiceApi service,
-            ServiceStorageBlobs serviceBlob, ServiceStorageS3 serviceS3,
-            IConfiguration configuration)
+            (ServiceApi service, ServiceStorageBlobs serviceBlob, IConfiguration configuration)
         {
-            _logger = logger;
             this.service = service;
             this.serviceBlob = serviceBlob;
             this.BucketUrl = configuration.GetValue<string>("AWS:BucketUrl");
-            this.serviceS3 = serviceS3;
         }
 
         public async Task<IActionResult> Index(int? idfavorito)
@@ -81,29 +75,9 @@ namespace ProyectoTienda2.Controllers
                     }
                 }
                 DatosArtista infoArtes = this.service.GetInfoArteSession(idsFavoritos);
-                
-                //foreach (InfoProducto c in infoArtes.listaProductos)
-                //{
-                //    string blobName = c.Imagen;
-                //    if (blobName != null)
-                //    {
-                //        BlobContainerClient blobContainerClient = await this.serviceBlob.GetContainerAsync(this.containerName);
-                //        BlobClient blobClient = blobContainerClient.GetBlobClient(blobName);
 
-                //        BlobSasBuilder sasBuilder = new BlobSasBuilder()
-                //        {
-                //            BlobContainerName = this.containerName,
-                //            BlobName = blobName,
-                //            Resource = "b",
-                //            StartsOn = DateTimeOffset.UtcNow,
-                //            ExpiresOn = DateTime.UtcNow.AddHours(1),
-                //        };
+                ViewData["BUCKETURL"] = this.BucketUrl;
 
-                //        sasBuilder.SetPermissions(BlobSasPermissions.Read);
-                //        var uri = blobClient.GenerateSasUri(sasBuilder);
-                //        c.Imagen = uri.ToString();
-                //    }
-                //}
                 return View(infoArtes);
             }
         }
@@ -112,25 +86,7 @@ namespace ProyectoTienda2.Controllers
         {
             DatosArtista infoProduct = await this.service.FindInfoArteAsync(idproducto);
 
-            string blobName = infoProduct.infoProducto.Imagen;
-            if (blobName != null)
-            {
-                BlobContainerClient blobContainerClient = await this.serviceBlob.GetContainerAsync(this.containerName);
-                BlobClient blobClient = blobContainerClient.GetBlobClient(blobName);
-
-                BlobSasBuilder sasBuilder = new BlobSasBuilder()
-                {
-                    BlobContainerName = this.containerName,
-                    BlobName = blobName,
-                    Resource = "b",
-                    StartsOn = DateTimeOffset.UtcNow,
-                    ExpiresOn = DateTime.UtcNow.AddHours(1),
-                };
-
-                sasBuilder.SetPermissions(BlobSasPermissions.Read);
-                var uri = blobClient.GenerateSasUri(sasBuilder);
-                infoProduct.infoProducto.Imagen = uri.ToString();
-            }
+            ViewData["BUCKETURL"] = this.BucketUrl;
 
             return View(infoProduct);
         }
