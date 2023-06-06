@@ -8,65 +8,13 @@ namespace ProyectoTienda2.Services
 {
     public class ServiceAwsCache
     {
-        private MediaTypeWithQualityHeaderValue Header;
-        private string UrlApiProyectoTienda;
-        private ProyectoTiendaContext context;
         private IDistributedCache cache;
 
-        public ServiceAwsCache(IConfiguration configuration, ProyectoTiendaContext context, IDistributedCache cache)
+        public ServiceAwsCache(IDistributedCache cache)
         {
-            this.UrlApiProyectoTienda =
-                configuration.GetValue<string>("ApiUrls:ApiProyectoTienda");
-            this.Header =
-                new MediaTypeWithQualityHeaderValue("application/json");
-            this.context = context;
             this.cache = cache;
         }
 
-        private async Task<T> CallApiAsync<T>(string request)
-        {
-            using (HttpClient client = new HttpClient())
-            {
-                client.BaseAddress = new Uri(this.UrlApiProyectoTienda);
-                client.DefaultRequestHeaders.Clear();
-                client.DefaultRequestHeaders.Accept.Add(this.Header);
-                HttpResponseMessage response =
-                    await client.GetAsync(request);
-                if (response.IsSuccessStatusCode)
-                {
-                    T data = await response.Content.ReadAsAsync<T>();
-                    return data;
-                }
-                else
-                {
-                    return default(T);
-                }
-            }
-        }
-
-        private async Task<T> CallApiAsync<T>
-            (string request, string token)
-        {
-            using (HttpClient client = new HttpClient())
-            {
-                client.BaseAddress = new Uri(this.UrlApiProyectoTienda);
-                client.DefaultRequestHeaders.Clear();
-                client.DefaultRequestHeaders.Accept.Add(this.Header);
-                client.DefaultRequestHeaders.Add
-                    ("Authorization", "bearer " + token);
-                HttpResponseMessage response =
-                    await client.GetAsync(request);
-                if (response.IsSuccessStatusCode)
-                {
-                    T data = await response.Content.ReadAsAsync<T>();
-                    return data;
-                }
-                else
-                {
-                    return default(T);
-                }
-            }
-        }
         public async Task<List<DatosArtista>> GetFavoritosAsync()
         {
 
@@ -108,13 +56,13 @@ namespace ProyectoTienda2.Services
                 cuadros.Remove(cuadroEliminar);
                 if (cuadros.Count == 0)
                 {
-                    await this.cache.RemoveAsync("cochesfavoritos");
+                    await this.cache.RemoveAsync("cuadrosfavoritos");
                 }
                 else
                 {
                     string jsonArte = await this.cache.GetStringAsync("cuadrosfavoritos");
                     await this.cache.SetStringAsync
-                        ("cochesfavoritos", jsonArte, new DistributedCacheEntryOptions()
+                        ("cuadrosfavoritos", jsonArte, new DistributedCacheEntryOptions()
                         .SetSlidingExpiration(TimeSpan.FromMinutes(30)));
                 }
             }

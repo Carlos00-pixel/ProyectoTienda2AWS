@@ -1,9 +1,21 @@
-﻿@model DatosArtista
+﻿@using ProyectoTienda2.Services;
+@model DatosArtista
 
 @{
-    List<int> favoritos =
-                        Context.Session.GetObject<List<int>>("FAVORITOS");
+    var memoryCache = ViewContext.HttpContext.RequestServices.GetService<IMemoryCache>();
+
+    var favoritos = await memoryCache.GetOrCreateAsync("cuadrosfavoritos", async entry =>
+    {
+        var favoritosService = ViewContext.HttpContext.RequestServices.GetService<ServiceAwsCache>();
+        var favoritosData = await favoritosService.GetFavoritosAsync();
+
+        // Realiza la conversión necesaria para obtener una lista de enteros
+        var favoritosList = favoritosData.Select(item => Convert.ToInt32(item)).ToList();
+
+        return favoritosList;
+    });
 }
+
 
 <div class="p-4 sm:ml-64">
     <div class="p-4 border-2 border-gray-200 border-dashed rounded-lg dark:border-gray-700">
