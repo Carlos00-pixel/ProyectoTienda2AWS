@@ -5,17 +5,6 @@
     var memoryCache = ViewContext.HttpContext.RequestServices.GetService<IMemoryCache>();
 
     var favoritos = memoryCache.Get<List<int>>("cuadrosfavoritos");
-
-    //var favoritos = await memoryCache.GetOrCreateAsync("cuadrosfavoritos", async entry =>
-    //{
-    //    var favoritosService = ViewContext.HttpContext.RequestServices.GetService<ServiceAwsCache>();
-    //    var favoritosData = await favoritosService.GetFavoritosAsync();
-
-    //    // Realiza la conversión necesaria para obtener una lista de enteros
-    //    var favoritosList = favoritosData.Select(item => Convert.ToInt32(item)).ToList();
-
-    //    return favoritosList;
-    //});
 }
 
 
