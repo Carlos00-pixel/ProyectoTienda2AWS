@@ -4,16 +4,18 @@
 @{
     var memoryCache = ViewContext.HttpContext.RequestServices.GetService<IMemoryCache>();
 
-    var favoritos = await memoryCache.GetOrCreateAsync("cuadrosfavoritos", async entry =>
-    {
-        var favoritosService = ViewContext.HttpContext.RequestServices.GetService<ServiceAwsCache>();
-        var favoritosData = await favoritosService.GetFavoritosAsync();
+    var favoritos = memoryCache.Get<List<int>>("cuadrosfavoritos");
 
-        // Realiza la conversión necesaria para obtener una lista de enteros
-        var favoritosList = favoritosData.Select(item => Convert.ToInt32(item)).ToList();
+    //var favoritos = await memoryCache.GetOrCreateAsync("cuadrosfavoritos", async entry =>
+    //{
+    //    var favoritosService = ViewContext.HttpContext.RequestServices.GetService<ServiceAwsCache>();
+    //    var favoritosData = await favoritosService.GetFavoritosAsync();
 
-        return favoritosList;
-    });
+    //    // Realiza la conversión necesaria para obtener una lista de enteros
+    //    var favoritosList = favoritosData.Select(item => Convert.ToInt32(item)).ToList();
+
+    //    return favoritosList;
+    //});
 }
 
 

@@ -17,19 +17,15 @@ namespace ProyectoTienda2.Services
         private MediaTypeWithQualityHeaderValue Header;
         private string UrlApiProyectoTienda;
         private ProyectoTiendaContext context;
-        private IDistributedCache cache;
 
-        public ServiceApi(IConfiguration configuration, ProyectoTiendaContext context, IDistributedCache cache)
+        public ServiceApi(IConfiguration configuration, ProyectoTiendaContext context)
         {
             this.UrlApiProyectoTienda =
                 configuration.GetValue<string>("ApiUrls:ApiProyectoTienda");
             this.Header =
                 new MediaTypeWithQualityHeaderValue("application/json");
             this.context = context;
-            this.cache = cache;
         }
-
-        
 
         private async Task<T> CallApiAsync<T>(string request)
         {

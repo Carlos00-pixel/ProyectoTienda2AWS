@@ -15,9 +15,11 @@ string connectionString = builder.Configuration.GetConnectionString("MySqlProyec
 
 builder.Services.AddTransient<ServiceApi>();
 builder.Services.AddTransient<ServiceStorageBlobs>();
+builder.Services.AddTransient<ServiceAwsCache>();
+builder.Services.AddDbContext<ProyectoTiendaContext>(options => options.UseSqlServer(connectionString));
 builder.Services.AddStackExchangeRedisCache(options =>
 {
-    options.Configuration = "cache-proyecto-tienda.8u9ggu.ng.0001.use1.cache.amazonaws.com:6379";
+    options.Configuration = "cache-proyecto-tienda.1xwnbt.ng.0001.use1.cache.amazonaws.com:6379";
     options.InstanceName = "ec2-mvc-proyecto-tienda";
 });
 
@@ -57,8 +59,6 @@ app.UseRouting();
 
 app.UseAuthentication();
 app.UseAuthorization();
-
-app.UseSession();
 
 app.UseMvc(route =>
 {
