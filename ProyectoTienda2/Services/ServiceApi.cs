@@ -206,6 +206,29 @@ namespace ProyectoTienda2.Services
                     await client.PostAsync(request, content);
             }
         }
+        public async Task LoginArtistaAsync(string email, string password)
+        {
+
+            using (HttpClient client = new HttpClient())
+            {
+                string request = "api/Managed/LoginArtista/" + email + "/" + password;
+                client.BaseAddress = new Uri(this.UrlApiProyectoTienda);
+                client.DefaultRequestHeaders.Clear();
+                client.DefaultRequestHeaders.Accept.Add(this.Header);
+
+                Artista artist = new Artista();
+                artist.Email = email;
+                artist.Password =
+                    HelperCryptography.EncryptPassword(password, artist.Salt);
+
+                string json = JsonConvert.SerializeObject(artist);
+
+                StringContent content =
+                    new StringContent(json, Encoding.UTF8, "application/json");
+                HttpResponseMessage response =
+                    await client.PostAsync(request, content);
+            }
+        }
 
         public async Task<Artista> FindEmailArtistaAsync(string email)
         {

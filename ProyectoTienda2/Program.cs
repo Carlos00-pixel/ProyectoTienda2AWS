@@ -16,7 +16,9 @@ string connectionString = builder.Configuration.GetConnectionString("MySqlProyec
 builder.Services.AddTransient<ServiceApi>();
 builder.Services.AddTransient<ServiceStorageBlobs>();
 builder.Services.AddTransient<ServiceAwsCache>();
-builder.Services.AddDbContext<ProyectoTiendaContext>(options => options.UseSqlServer(connectionString));
+builder.Services.AddDbContext<ProyectoTiendaContext>
+    (options => options.UseMySql(connectionString
+    , ServerVersion.AutoDetect(connectionString)));
 builder.Services.AddStackExchangeRedisCache(options =>
 {
     options.Configuration = "cache-proyecto-tienda.1xwnbt.ng.0001.use1.cache.amazonaws.com:6379";
