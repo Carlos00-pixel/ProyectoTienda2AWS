@@ -40,38 +40,5 @@ namespace ProyectoTienda2.Services
             }
         }
 
-        //ELIMINAMOS FICHEROS DEL BUCKET
-        public async Task<bool> DeleteFileAsync(string fileName)
-        {
-            DeleteObjectResponse response =
-                await this.ClientS3.DeleteObjectAsync(this.BucketName, fileName);
-            if (response.HttpStatusCode == System.Net.HttpStatusCode.OK)
-            {
-                return true;
-            }
-            else
-            {
-                return false;
-            }
-        }
-
-        //METODO PARA RECUPERAR LAS VERSIONES DE UN FILE
-        public async Task<List<string>> GetVersionsFilesAsync()
-        {
-            ListVersionsResponse response =
-                await this.ClientS3.ListVersionsAsync(this.BucketName);
-            List<string> versiones =
-                response.Versions.Select(x => x.Key).ToList();
-            return versiones;
-        }
-
-        //METODO PARA RECUPERAR UN FILE POR CODIGO
-        public async Task<Stream> GetFileAsync(string fileName)
-        {
-            GetObjectResponse response =
-                await this.ClientS3.GetObjectAsync(this.BucketName, fileName);
-            return response.ResponseStream;
-        }
-
     }
 }

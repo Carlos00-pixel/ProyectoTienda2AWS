@@ -1,27 +1,21 @@
-﻿using Azure.Storage.Blobs;
-using Azure.Storage.Sas;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Caching.Memory;
-using ProyectoTienda2.Filters;
+﻿using Microsoft.AspNetCore.Mvc;
 using ProyectoTienda2.Services;
 using PyoyectoNugetTienda;
-using System.Drawing;
 using System.Security.Claims;
-using static System.Net.Mime.MediaTypeNames;
 
 namespace ProyectoTienda2.Controllers
 {
     public class ArtistaController : Controller
     {
         private ServiceApi service;
-        private ServiceStorageBlobs serviceBlob;
-        private string containerName = "proyectotienda";
+        private ServiceStorageS3 serviceS3;
         private string BucketUrl;
 
-        public ArtistaController(ServiceApi service, ServiceStorageBlobs serviceBlob, IConfiguration configuration)
+        public ArtistaController
+            (ServiceApi service, ServiceStorageS3 serviceS3, IConfiguration configuration)
         {
             this.service = service;
-            this.serviceBlob = serviceBlob;
+            this.serviceS3 = serviceS3;
             this.BucketUrl = configuration.GetValue<string>("AWS:BucketUrl");
         }
 
@@ -30,8 +24,6 @@ namespace ProyectoTienda2.Controllers
 
             DatosArtista artista = await this.service.DetailsArtistaAsync(idartista);
             ViewData["CONTARPRODUCT"] = artista.listaProductos.Count;
-            //ViewData["PERFIL"] = await this.serviceBlob.GetBlobAsync(this.containerName, artista.artista.Imagen);
-            //ViewData["FOTOFONDO"] = await this.serviceBlob.GetBlobAsync(this.containerName, artista.artista.ImagenFondo);
             ViewData["PERFIL"] = this.BucketUrl + artista.artista.Imagen;
             ViewData["FOTOFONDO"] = this.BucketUrl + artista.artista.ImagenFondo;
             ViewData["BUCKETURL"] = this.BucketUrl;
@@ -49,8 +41,6 @@ namespace ProyectoTienda2.Controllers
 
             artista = await this.service.DetailsArtistaAsync(idartista);
             ViewData["CONTARPRODUCT"] = artista.listaProductos.Count;
-            //ViewData["PERFIL"] = await this.serviceBlob.GetBlobAsync(this.containerName, artista.artista.Imagen);
-            //ViewData["FOTOFONDO"] = await this.serviceBlob.GetBlobAsync(this.containerName, artista.artista.ImagenFondo);
             ViewData["PERFIL"] = this.BucketUrl + artista.artista.Imagen;
             ViewData["FOTOFONDO"] = this.BucketUrl + artista.artista.ImagenFondo;
             return View(artista);
@@ -60,12 +50,12 @@ namespace ProyectoTienda2.Controllers
         public async Task<IActionResult> PerfilArtista
             (int idartista, IFormFile fileFondo)
         {
-            string blobName = fileFondo.FileName;
+            string bucketName = fileFondo.FileName;
             using (Stream stream = fileFondo.OpenReadStream())
             {
-                await this.serviceBlob.UploadBlobAsync(this.containerName, blobName, stream);
+                await this.serviceS3.UploadFileAsync(bucketName, stream);
             }
-            await this.service.CambiarImagenFondoAsync(idartista, blobName);
+            await this.service.CambiarImagenFondoAsync(idartista, bucketName);
             return RedirectToAction("PerfilArtista", new { idartista = int.Parse(HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value) });
         }
 
@@ -81,15 +71,15 @@ namespace ProyectoTienda2.Controllers
             string email, IFormFile file)
         {
             DatosArtista artista = new DatosArtista();
-            string blobName = file.FileName;
+            string bucketName = file.FileName;
             using (Stream stream = file.OpenReadStream())
             {
-                await this.serviceBlob.UploadBlobAsync(this.containerName, blobName, stream);
+                await this.serviceS3.UploadFileAsync(bucketName, stream);
             }
             idartista = int.Parse(HttpContext.User.FindFirst(ClaimTypes.NameIdentifier).Value);
             await this.service.PerfilArtista
                 (idartista, nombre, apellidos, nick, descripcion,
-                email, blobName);
+                email, bucketName);
 
             return RedirectToAction("PerfilArtista", new { idartista = idartista });
         }

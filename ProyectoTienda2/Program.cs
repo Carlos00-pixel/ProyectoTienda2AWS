@@ -7,10 +7,6 @@ using ProyectoTienda2.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
-string azureKeys = builder.Configuration.GetValue<string>("AzureKeys:StorageAccount");
-BlobServiceClient blobServiceClient = new BlobServiceClient(azureKeys);
-builder.Services.AddTransient<BlobServiceClient>(x => blobServiceClient);
-
 
 // Add services to the container.
 string connectionString = builder.Configuration.GetConnectionString("MySqlProyectoTienda");
