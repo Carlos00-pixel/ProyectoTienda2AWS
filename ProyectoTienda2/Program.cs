@@ -25,6 +25,11 @@ builder.Services.AddStackExchangeRedisCache(options =>
     options.InstanceName = "cache-proyecto-tienda";
 });
 
+builder.Services.AddSession(options =>
+{
+    options.IdleTimeout = TimeSpan.FromMinutes(30);
+});
+
 //SEGURIDAD
 builder.Services.AddAuthentication(options =>
 {
@@ -61,6 +66,8 @@ app.UseRouting();
 
 app.UseAuthentication();
 app.UseAuthorization();
+
+app.UseSession();
 
 app.UseMvc(route =>
 {
