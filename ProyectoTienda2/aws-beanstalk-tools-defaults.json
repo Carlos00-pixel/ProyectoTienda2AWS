@@ -8,7 +8,7 @@
     "environment"    : "ProyectoTienda2-dev",
     "enable-xray"    : false,
     "enhanced-health-type" : "basic",
-    "additional-options"   : "\"aws:autoscaling:launchconfiguration,SecurityGroups\"=\"sg-09ee12d93a4947f1c\";\"aws:ec2:vpc,Subnets\"=\"subnet-03aef7a37768d5a50\"",
+    "additional-options"   : "",
     "solution-stack"       : "64bit Amazon Linux 2 v2.5.4 running .NET Core",
     "environment-type"     : "SingleInstance",
     "cname"                : "proyectotienda2-dev",
