@@ -40,5 +40,12 @@ namespace ProyectoTienda2.Services
             }
         }
 
+        public async Task<Stream> GetFileAsync(string fileName)
+        {
+            GetObjectResponse response =
+                await this.ClientS3.GetObjectAsync(this.BucketName, fileName);
+            return response.ResponseStream;
+        }
+
     }
 }

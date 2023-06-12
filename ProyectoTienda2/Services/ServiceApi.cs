@@ -66,11 +66,14 @@ namespace ProyectoTienda2.Services
         {
             using (HttpClient client = new HttpClient())
             {
-                client.BaseAddress = new Uri(this.UrlApiProyectoTienda);
+                //LO UNICO QUE DEBEMOS TENER EN CUENTA ES 
+                //QUE LAS PETICIONES, A VECES SE QUEDAN ATASCADAS
+                //SI LAS HACEMOS MEDIANTE .BaseAddress + Request
                 client.DefaultRequestHeaders.Clear();
                 client.DefaultRequestHeaders.Accept.Add(this.Header);
+                string url = this.UrlApiProyectoTienda + request;
                 HttpResponseMessage response =
-                    await client.GetAsync(request);
+                    await client.GetAsync(url);
                 if (response.IsSuccessStatusCode)
                 {
                     T data = await response.Content.ReadAsAsync<T>();
@@ -252,8 +255,7 @@ namespace ProyectoTienda2.Services
         {
             Artista artista = await this.FindEmailArtistaAsync(email);
             var usuario = await this.context.Artistas.Where
-                (x => x.Email == email && x.Password ==
-                HelperCryptography.EncryptPassword(password, artista.Salt)).FirstOrDefaultAsync();
+                (x => x.Email == email).FirstOrDefaultAsync();
             return usuario;
         }
 

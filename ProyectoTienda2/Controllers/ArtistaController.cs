@@ -43,6 +43,7 @@ namespace ProyectoTienda2.Controllers
             ViewData["CONTARPRODUCT"] = artista.listaProductos.Count;
             ViewData["PERFIL"] = this.BucketUrl + artista.artista.Imagen;
             ViewData["FOTOFONDO"] = this.BucketUrl + artista.artista.ImagenFondo;
+            ViewData["BUCKETURL"] = this.BucketUrl;
             return View(artista);
         }
 

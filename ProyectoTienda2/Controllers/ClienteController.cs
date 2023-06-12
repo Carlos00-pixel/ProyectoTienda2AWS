@@ -14,14 +14,13 @@ namespace ProyectoTienda2.Controllers
     public class ClienteController : Controller
     {
         private ServiceApi service;
-        private ServiceStorageBlobs serviceBlob;
-        private string containerName = "proyectotienda";
+        private ServiceStorageS3 serviceS3;
         private string BucketUrl;
 
-        public ClienteController(ServiceApi service, ServiceStorageBlobs serviceBlob, IConfiguration configuration)
+        public ClienteController(ServiceApi service, ServiceStorageS3 serviceS3, IConfiguration configuration)
         {
             this.service = service;
-            this.serviceBlob = serviceBlob;
+            this.serviceS3 = serviceS3;
             this.BucketUrl = configuration.GetValue<string>("AWS:BucketUrl");
         }
 
@@ -54,14 +53,14 @@ namespace ProyectoTienda2.Controllers
         public async Task<IActionResult> EditarCliente
             (int idcliente, string nombre, string apellidos, string email, IFormFile file)
         {
-            string blobName = file.FileName;
+            string bucketName = file.FileName;
             using (Stream stream = file.OpenReadStream())
             {
-                await this.serviceBlob.UploadBlobAsync(this.containerName, blobName, stream);
+                await this.serviceS3.UploadFileAsync(bucketName, stream);
             }
             idcliente = int.Parse(HttpContext.User.FindFirst(ClaimTypes.NameIdentifier).Value);
             await this.service.EditarClienteAsync
-                (idcliente, nombre, apellidos, email, blobName);
+                (idcliente, nombre, apellidos, email, bucketName);
             return RedirectToAction("DetallesCliente");
         }
 

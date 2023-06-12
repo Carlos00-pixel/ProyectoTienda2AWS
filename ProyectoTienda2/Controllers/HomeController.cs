@@ -15,15 +15,14 @@ namespace ProyectoTienda2.Controllers
     {
 
         private ServiceApi service;
-        private ServiceStorageBlobs serviceBlob;
-        private string containerName = "proyectotienda";
+        private ServiceStorageS3 serviceS3;
         private string BucketUrl;
 
         public HomeController
-            (ServiceApi service, ServiceStorageBlobs serviceBlob, IConfiguration configuration)
+            (ServiceApi service, ServiceStorageS3 serviceS3, IConfiguration configuration)
         {
             this.service = service;
-            this.serviceBlob = serviceBlob;
+            this.serviceS3 = serviceS3;
             this.BucketUrl = configuration.GetValue<string>("AWS:BucketUrl");
         }
 
@@ -58,6 +57,7 @@ namespace ProyectoTienda2.Controllers
             if (idsFavoritos == null)
             {
                 ViewData["MENSAJE"] = "No existen favoritos almacenados";
+                ViewData["BUCKETURL"] = this.BucketUrl;
                 return View();
             }
             else
@@ -93,6 +93,7 @@ namespace ProyectoTienda2.Controllers
 
         public IActionResult NuevoProducto()
         {
+            ViewData["BUCKETURL"] = this.BucketUrl;
             return View();
         }
 
@@ -100,15 +101,15 @@ namespace ProyectoTienda2.Controllers
         public async Task<IActionResult> NuevoProducto
             (string titulo, int precio, string descripcion, IFormFile file, int idartista)
         {
-            string blobName = file.FileName;
+            string bucketName = file.FileName;
             using (Stream stream = file.OpenReadStream())
             {
-                await this.serviceBlob.UploadBlobAsync(this.containerName, blobName, stream);
+                await this.serviceS3.UploadFileAsync(bucketName, stream);
             }
 
             idartista = int.Parse(HttpContext.User.FindFirst(ClaimTypes.NameIdentifier).Value);
 
-            await this.service.AgregarProductoAsync(titulo, precio, descripcion, blobName, idartista);
+            await this.service.AgregarProductoAsync(titulo, precio, descripcion, bucketName, idartista);
             return RedirectToAction("Index");
         }
 
