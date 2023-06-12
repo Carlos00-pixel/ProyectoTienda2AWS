@@ -45,9 +45,9 @@ namespace ProyectoTienda2.Controllers
                 //}
                 //favoritos.Add(idfavorito.Value);
                 //HttpContext.Session.SetObject("FAVORITOS", favoritos);
-                //DEBEMOS BUSCAR EL COCHE A ALMACENAR DENTRO DEL XML
+                
                 DatosArtista cuadro = await this.service.FindInfoArteAsync(idfavorito.Value);
-                await this.serviceAws.AddFavoritoAsync(cuadro);
+                await this.serviceAws.AddFavoritoAsync(cuadro.infoProducto);
                
 
             }

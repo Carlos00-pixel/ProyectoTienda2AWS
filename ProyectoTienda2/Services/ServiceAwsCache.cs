@@ -26,15 +26,18 @@ namespace ProyectoTienda2.Services
             }
             else
             {
-                DatosArtista cuadros = JsonConvert.DeserializeObject<DatosArtista>
+
+                DatosArtista cuadros = new DatosArtista();
+                cuadros.listaProductos = JsonConvert.DeserializeObject<List<InfoProducto>>
                     (jsonArte);
                 return cuadros;
             }
         }
 
-        public async Task AddFavoritoAsync(DatosArtista cuadro)
+        public async Task AddFavoritoAsync(InfoProducto cuadro)
         {
-            DatosArtista cuadros = await this.GetFavoritosAsync();
+            DatosArtista cuadros = new DatosArtista();
+            cuadros = await this.GetFavoritosAsync();
             if (cuadros == null)
             {
                 cuadros = new DatosArtista();
@@ -48,13 +51,13 @@ namespace ProyectoTienda2.Services
 
         public async Task DeleteFavoritoAsync(int idfavorito)
         {
-            List<DatosArtista> cuadros = await this.GetFavoritosAsync();
+            DatosArtista cuadros = await this.GetFavoritosAsync();
             if (cuadros != null)
             {
-                DatosArtista cuadroEliminar =
-                    cuadros.FirstOrDefault(x => x.infoProducto.IdInfoArte == idfavorito);
-                cuadros.Remove(cuadroEliminar);
-                if (cuadros.Count == 0)
+                InfoProducto cuadroEliminar =
+                    cuadros.listaProductos.FirstOrDefault(x => x.IdInfoArte == idfavorito);
+                cuadros.listaProductos.Remove(cuadroEliminar);
+                if (cuadros.listaProductos.Count == 0)
                 {
                     await this.cache.RemoveAsync("cuadrosfavoritos");
                 }
