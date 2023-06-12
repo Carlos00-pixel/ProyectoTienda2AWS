@@ -1,8 +1,10 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Amazon.S3;
+using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using ProyectoTienda2.Data;
 using ProyectoTienda2.Helpers;
+using ProyectoTienda2.Models;
 using PyoyectoNugetTienda;
 using System.Net.Http.Headers;
 using System.Text;
@@ -14,9 +16,16 @@ namespace ProyectoTienda2.Services
         private MediaTypeWithQualityHeaderValue Header;
         private string UrlApiProyectoTienda;
         private ProyectoTiendaContext context;
+        private IAmazonS3 ClientS3;
 
-        public ServiceApi(IConfiguration configuration, ProyectoTiendaContext context)
+        string miSecreto = HelperSecretManager.GetSecretAsync().Result;
+        public ServiceApi(IConfiguration configuration, ProyectoTiendaContext context
+            , IAmazonS3 clientS3)
         {
+            KeysModel model = JsonConvert.DeserializeObject<KeysModel>(miSecreto);
+
+            //this.UrlApiProyectoTienda = model.ApiProyectoTienda;
+
             this.UrlApiProyectoTienda =
                 configuration.GetValue<string>("ApiUrls:ApiProyectoTienda");
             this.Header =
