@@ -25,10 +25,15 @@ builder.Services.AddStackExchangeRedisCache(options =>
     options.InstanceName = "cache-proyecto-tienda";
 });
 
+builder.Services.AddDistributedMemoryCache();
+builder.Services.AddHttpContextAccessor();
 builder.Services.AddSession(options =>
 {
     options.IdleTimeout = TimeSpan.FromMinutes(30);
 });
+
+builder.Services.AddAntiforgery();
+builder.Services.AddControllersWithViews(options => options.EnableEndpointRouting = false);
 
 //SEGURIDAD
 builder.Services.AddAuthentication(options =>
