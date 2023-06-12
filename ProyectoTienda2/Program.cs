@@ -1,3 +1,4 @@
+using Amazon.S3;
 using Azure.Storage.Blobs;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.EntityFrameworkCore;
@@ -13,6 +14,7 @@ builder.Services.AddTransient<BlobServiceClient>(x => blobServiceClient);
 // Add services to the container.
 string connectionString = builder.Configuration.GetConnectionString("SqlProyectoTiendaAzure");
 
+builder.Services.AddAWSService<IAmazonS3>();
 builder.Services.AddTransient<ServiceApi>();
 builder.Services.AddTransient<ServiceStorageBlobs>();
 builder.Services.AddDbContext<ProyectoTiendaContext>(options => options.UseSqlServer(connectionString));
