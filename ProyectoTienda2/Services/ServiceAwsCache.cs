@@ -15,7 +15,7 @@ namespace ProyectoTienda2.Services
             this.cache = cache;
         }
 
-        public async Task<List<DatosArtista>> GetFavoritosAsync()
+        public async Task<DatosArtista> GetFavoritosAsync()
         {
 
             string jsonArte =
@@ -26,7 +26,7 @@ namespace ProyectoTienda2.Services
             }
             else
             {
-                List<DatosArtista> cuadros = JsonConvert.DeserializeObject<List<DatosArtista>>
+                DatosArtista cuadros = JsonConvert.DeserializeObject<DatosArtista>
                     (jsonArte);
                 return cuadros;
             }
@@ -34,12 +34,12 @@ namespace ProyectoTienda2.Services
 
         public async Task AddFavoritoAsync(DatosArtista cuadro)
         {
-            List<DatosArtista> cuadros = await this.GetFavoritosAsync();
+            DatosArtista cuadros = await this.GetFavoritosAsync();
             if (cuadros == null)
             {
-                cuadros = new List<DatosArtista>();
+                cuadros = new DatosArtista();
             }
-            cuadros.Add(cuadro);
+            cuadros.listaProductos.Add(cuadro);
             string jsonArte = JsonConvert.SerializeObject(cuadros);
             await this.cache.SetStringAsync
                 ("cuadrosfavoritos", jsonArte, new DistributedCacheEntryOptions()
