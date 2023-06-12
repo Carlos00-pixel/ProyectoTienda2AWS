@@ -101,7 +101,7 @@ namespace ProyectoTienda2.Controllers
             //            HttpContext.Session.SetObject("FAVORITOS", idsFavoritos);
             //        }
             //    }
-            List<DatosArtista> cuadros = await this.serviceAws.GetFavoritosAsync();
+            DatosArtista cuadros = await this.serviceAws.GetFavoritosAsync();
             return View(cuadros);
 
             DatosArtista infoArtes = this.service.GetInfoArteSession(idsFavoritos);
