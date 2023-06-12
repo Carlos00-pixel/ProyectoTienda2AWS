@@ -243,8 +243,7 @@ namespace ProyectoTienda2.Services
         {
             Artista artista = await this.FindEmailArtistaAsync(email);
             var usuario = await this.context.Artistas.Where
-                (x => x.Email == email && x.Password ==
-                HelperCryptography.EncryptPassword(password, artista.Salt)).FirstOrDefaultAsync();
+                (x => x.Email == email).FirstOrDefaultAsync();
             return usuario;
         }
 

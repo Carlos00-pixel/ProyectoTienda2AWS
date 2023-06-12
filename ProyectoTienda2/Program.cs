@@ -22,7 +22,7 @@ builder.Services.AddDbContext<ProyectoTiendaContext>
 builder.Services.AddStackExchangeRedisCache(options =>
 {
     options.Configuration = "cache-proyecto-tienda.1xwnbt.ng.0001.use1.cache.amazonaws.com:6379";
-    options.InstanceName = "ec2-mvc-proyecto-tienda";
+    options.InstanceName = "cache-proyecto-tienda";
 });
 
 //SEGURIDAD
