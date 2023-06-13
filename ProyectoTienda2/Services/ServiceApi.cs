@@ -9,6 +9,8 @@ using System.Net.Http.Headers;
 using System.Text;
 using Newtonsoft.Json;
 using Microsoft.Extensions.Caching.Distributed;
+using MvcAWSApiConciertosMySql.Helpers;
+using MvcAWSApiConciertosMySql.Models;
 
 namespace ProyectoTienda2.Services
 {
@@ -19,11 +21,14 @@ namespace ProyectoTienda2.Services
         private ProyectoTiendaContext context;
         private ServiceStorageS3 serviceS3;
 
+        string miSecreto = HelperSecretManager.GetSecretAsync().Result;
+
         public ServiceApi(IConfiguration configuration, ProyectoTiendaContext context,
             ServiceStorageS3 serviceS3)
         {
-            this.UrlApiProyectoTienda =
-                configuration.GetValue<string>("ApiUrls:ApiProyectoTienda");
+            KeysModel model = JsonConvert.DeserializeObject<KeysModel>(miSecreto);
+
+            this.UrlApiProyectoTienda = model.ApiProyectoTienda;               
             this.Header =
                 new MediaTypeWithQualityHeaderValue("application/json");
             this.context = context;
