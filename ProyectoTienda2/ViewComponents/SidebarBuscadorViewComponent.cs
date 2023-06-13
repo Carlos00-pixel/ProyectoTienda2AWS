@@ -2,6 +2,9 @@
 using Azure.Storage.Sas;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
+using Newtonsoft.Json;
+using ProyectoTienda2.Helpers;
+using ProyectoTienda2.Models;
 using ProyectoTienda2.Services;
 using PyoyectoNugetTienda;
 using System.Collections.Generic;
@@ -13,11 +16,13 @@ namespace ProyectoTienda2.ViewComponents
     {
         private ServiceApi service;
         private string BucketUrl;
+        string miSecreto = HelperSecretManager.GetSecretAsync().Result;
 
         public SidebarBuscadorViewComponent(ServiceApi service, IConfiguration configuration)
         {
             this.service = service;
-            this.BucketUrl = configuration.GetValue<string>("AWS:BucketUrl");
+            KeysModel model = JsonConvert.DeserializeObject<KeysModel>(miSecreto);
+            this.BucketUrl = model.BucketUrl;
         }
 
         public async Task<IViewComponentResult> InvokeAsync(string query)
