@@ -8,6 +8,9 @@ using PyoyectoNugetTienda;
 using ProyectoTienda2.Services;
 using Azure.Storage.Blobs;
 using Azure.Storage.Sas;
+using MvcAWSApiConciertosMySql.Helpers;
+using MvcAWSApiConciertosMySql.Models;
+using Newtonsoft.Json;
 
 namespace ProyectoTienda2.Controllers
 {
@@ -16,12 +19,14 @@ namespace ProyectoTienda2.Controllers
         private ServiceApi service;
         private ServiceStorageS3 serviceS3;
         private string BucketUrl;
+        string miSecreto = HelperSecretManager.GetSecretAsync().Result;
 
         public ClienteController(ServiceApi service, ServiceStorageS3 serviceS3, IConfiguration configuration)
         {
+            KeysModel model = JsonConvert.DeserializeObject<KeysModel>(miSecreto);
             this.service = service;
             this.serviceS3 = serviceS3;
-            this.BucketUrl = configuration.GetValue<string>("AWS:BucketUrl");
+            this.BucketUrl = model.BucketUrl;
         }
 
         public async Task<IActionResult> DetallesCliente(int idcliente)

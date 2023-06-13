@@ -1,5 +1,8 @@
 using Azure.Storage.Sas;
 using Microsoft.AspNetCore.Mvc;
+using MvcAWSApiConciertosMySql.Helpers;
+using MvcAWSApiConciertosMySql.Models;
+using Newtonsoft.Json;
 using ProyectoTienda2.Extensions;
 using ProyectoTienda2.Filters;
 using ProyectoTienda2.Services;
@@ -17,15 +20,17 @@ namespace ProyectoTienda2.Controllers
         private ServiceStorageS3 serviceS3;
         private ServiceAwsCache serviceAws;
         private string BucketUrl;
+        string miSecreto = HelperSecretManager.GetSecretAsync().Result;
 
         public HomeController
             (ServiceApi service, ServiceStorageS3 serviceS3, IConfiguration configuration, ServiceAwsCache serviceAws)
 
         {
+            KeysModel model = JsonConvert.DeserializeObject<KeysModel>(miSecreto);
             this.service = service;
             this.serviceS3 = serviceS3;
             this.serviceAws = serviceAws;
-            this.BucketUrl = configuration.GetValue<string>("AWS:BucketUrl");
+            this.BucketUrl = model.BucketUrl;
         }
 
         public async Task<IActionResult> Index(int? idfavorito)

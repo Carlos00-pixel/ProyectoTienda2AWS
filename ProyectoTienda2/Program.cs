@@ -2,6 +2,9 @@ using Amazon.S3;
 using Azure.Storage.Blobs;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.EntityFrameworkCore;
+using MvcAWSApiConciertosMySql.Helpers;
+using MvcAWSApiConciertosMySql.Models;
+using Newtonsoft.Json;
 using ProyectoTienda2.Data;
 using ProyectoTienda2.Services;
 
@@ -11,14 +14,18 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 string connectionString = builder.Configuration.GetConnectionString("MySqlProyectoTienda");
 
+string secrets =
+            HelperSecretManager.GetSecretAsync().Result;
+KeysModel model = JsonConvert.DeserializeObject<KeysModel>(secrets);
+
 builder.Services.AddAWSService<IAmazonS3>();
 
 builder.Services.AddTransient<ServiceApi>();
 builder.Services.AddTransient<ServiceStorageS3>();
 builder.Services.AddTransient<ServiceAwsCache>();
 builder.Services.AddDbContext<ProyectoTiendaContext>
-    (options => options.UseMySql(connectionString
-    , ServerVersion.AutoDetect(connectionString)));
+    (options => options.UseMySql(model.MySqlTienda
+    , ServerVersion.AutoDetect(model.MySqlTienda)));
 builder.Services.AddStackExchangeRedisCache(options =>
 {
     options.Configuration = "cache-proyecto-tienda.1xwnbt.ng.0001.use1.cache.amazonaws.com:6379";

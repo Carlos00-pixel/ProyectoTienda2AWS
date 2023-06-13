@@ -1,6 +1,9 @@
 ﻿using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Mvc;
+using MvcAWSApiConciertosMySql.Helpers;
+using MvcAWSApiConciertosMySql.Models;
+using Newtonsoft.Json;
 using ProyectoTienda2.Services;
 using PyoyectoNugetTienda;
 using System.Security.Claims;
@@ -12,12 +15,14 @@ namespace ProyectoTienda2.Controllers
         private ServiceApi service;
         private ServiceStorageS3 serviceS3;
         private string BucketUrl;
+        string miSecreto = HelperSecretManager.GetSecretAsync().Result;
 
         public ManagedController(ServiceApi service, ServiceStorageS3 serviceS3, IConfiguration configuration)
         {
+            KeysModel model = JsonConvert.DeserializeObject<KeysModel>(miSecreto);
             this.service = service;
             this.serviceS3 = serviceS3;
-            this.BucketUrl = configuration.GetValue<string>("AWS:BucketUrl");
+            this.BucketUrl = model.BucketUrl;
         }
 
         #region CLIENTE
