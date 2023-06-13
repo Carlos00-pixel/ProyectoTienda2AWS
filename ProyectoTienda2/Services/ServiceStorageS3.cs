@@ -1,8 +1,8 @@
 ﻿using Amazon.S3;
 using Amazon.S3.Model;
-using MvcAWSApiConciertosMySql.Helpers;
-using MvcAWSApiConciertosMySql.Models;
 using Newtonsoft.Json;
+using ProyectoTienda2.Helpers;
+using ProyectoTienda2.Models;
 
 namespace ProyectoTienda2.Services
 {
@@ -17,8 +17,7 @@ namespace ProyectoTienda2.Services
             , IAmazonS3 clientS3)
         {
             KeysModel model = JsonConvert.DeserializeObject<KeysModel>(miSecreto);
-            this.BucketName = configuration.GetValue<string>
-                ("AWS:BucketName");
+            this.BucketName = model.BucketName;
             this.ClientS3 = clientS3;
         }
 

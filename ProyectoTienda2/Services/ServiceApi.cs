@@ -9,8 +9,7 @@ using System.Net.Http.Headers;
 using System.Text;
 using Newtonsoft.Json;
 using Microsoft.Extensions.Caching.Distributed;
-using MvcAWSApiConciertosMySql.Helpers;
-using MvcAWSApiConciertosMySql.Models;
+using ProyectoTienda2.Models;
 
 namespace ProyectoTienda2.Services
 {

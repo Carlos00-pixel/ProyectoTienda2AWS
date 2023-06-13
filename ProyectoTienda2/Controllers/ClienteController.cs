@@ -8,9 +8,9 @@ using PyoyectoNugetTienda;
 using ProyectoTienda2.Services;
 using Azure.Storage.Blobs;
 using Azure.Storage.Sas;
-using MvcAWSApiConciertosMySql.Helpers;
-using MvcAWSApiConciertosMySql.Models;
 using Newtonsoft.Json;
+using ProyectoTienda2.Helpers;
+using ProyectoTienda2.Models;
 
 namespace ProyectoTienda2.Controllers
 {

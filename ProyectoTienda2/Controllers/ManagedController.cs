@@ -1,9 +1,9 @@
 ﻿using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Mvc;
-using MvcAWSApiConciertosMySql.Helpers;
-using MvcAWSApiConciertosMySql.Models;
 using Newtonsoft.Json;
+using ProyectoTienda2.Helpers;
+using ProyectoTienda2.Models;
 using ProyectoTienda2.Services;
 using PyoyectoNugetTienda;
 using System.Security.Claims;

@@ -2,10 +2,10 @@ using Amazon.S3;
 using Azure.Storage.Blobs;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.EntityFrameworkCore;
-using MvcAWSApiConciertosMySql.Helpers;
-using MvcAWSApiConciertosMySql.Models;
 using Newtonsoft.Json;
 using ProyectoTienda2.Data;
+using ProyectoTienda2.Helpers;
+using ProyectoTienda2.Models;
 using ProyectoTienda2.Services;
 
 var builder = WebApplication.CreateBuilder(args);

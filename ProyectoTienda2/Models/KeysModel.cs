@@ -1,4 +1,4 @@
-﻿namespace MvcAWSApiConciertosMySql.Models
+﻿namespace ProyectoTienda2.Models
 {
     public class KeysModel
     {

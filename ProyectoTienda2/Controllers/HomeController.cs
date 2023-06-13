@@ -1,10 +1,10 @@
 using Azure.Storage.Sas;
 using Microsoft.AspNetCore.Mvc;
-using MvcAWSApiConciertosMySql.Helpers;
-using MvcAWSApiConciertosMySql.Models;
 using Newtonsoft.Json;
 using ProyectoTienda2.Extensions;
 using ProyectoTienda2.Filters;
+using ProyectoTienda2.Helpers;
+using ProyectoTienda2.Models;
 using ProyectoTienda2.Services;
 using PyoyectoNugetTienda;
 using System.Collections.Generic;
