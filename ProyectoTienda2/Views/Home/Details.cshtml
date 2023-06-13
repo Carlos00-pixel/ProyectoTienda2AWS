@@ -140,7 +140,7 @@
 
         // Crea la imagen ampliada
         var imagen = new Image();
-        imagen.src = "@Model.infoProducto.Imagen";
+        imagen.src = "@ViewData["BUCKETURL"]@Model.infoProducto.Imagen";
 
         // Agrega la imagen al contenedor
         container.appendChild(imagen);
