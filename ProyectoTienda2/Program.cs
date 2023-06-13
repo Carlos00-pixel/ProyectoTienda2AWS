@@ -14,7 +14,7 @@ string connectionString = builder.Configuration.GetConnectionString("MySqlProyec
 builder.Services.AddAWSService<IAmazonS3>();
 
 builder.Services.AddTransient<ServiceApi>();
-builder.Services.AddTransient<ServiceStorageBlobs>();
+builder.Services.AddTransient<ServiceStorageS3>();
 builder.Services.AddTransient<ServiceAwsCache>();
 builder.Services.AddDbContext<ProyectoTiendaContext>
     (options => options.UseMySql(connectionString

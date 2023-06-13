@@ -15,14 +15,16 @@ namespace ProyectoTienda2.Controllers
 
         private ServiceApi service;
         private ServiceStorageS3 serviceS3;
+        private ServiceAwsCache serviceAws;
         private string BucketUrl;
 
         public HomeController
-            (ServiceApi service, ServiceStorageS3 serviceS3, IConfiguration configuration)
+            (ServiceApi service, ServiceStorageS3 serviceS3, IConfiguration configuration, ServiceAwsCache serviceAws)
 
         {
             this.service = service;
             this.serviceS3 = serviceS3;
+            this.serviceAws = serviceAws;
             this.BucketUrl = configuration.GetValue<string>("AWS:BucketUrl");
         }
 
@@ -66,7 +68,7 @@ namespace ProyectoTienda2.Controllers
             DatosArtista cuadros = await this.serviceAws.GetFavoritosAsync();
             return View(cuadros);
 
-                return View(infoArtes);
+              
             
         }
 
