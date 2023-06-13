@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using ProyectoTienda2.Data;
@@ -6,6 +7,8 @@ using ProyectoTienda2.Helpers;
 using PyoyectoNugetTienda;
 using System.Net.Http.Headers;
 using System.Text;
+using Newtonsoft.Json;
+using Microsoft.Extensions.Caching.Distributed;
 
 namespace ProyectoTienda2.Services
 {
@@ -26,41 +29,6 @@ namespace ProyectoTienda2.Services
             this.context = context;
             this.serviceS3 = serviceS3;
         }
-
-        //public async Task<string> GetTokenAsync
-        //    (string email, string password)
-        //{
-        //    using (HttpClient client = new HttpClient())
-        //    {
-        //        string request = "/api/AuthArtista/Login";
-        //        client.BaseAddress = new Uri(this.UrlApiProyectoTienda);
-        //        client.DefaultRequestHeaders.Clear();
-        //        client.DefaultRequestHeaders.Accept.Add(this.Header);
-        //        LoginModel model = new LoginModel
-        //        {
-        //            Email = email,
-        //            Password = password
-        //        };
-        //        string jsonModel = JsonConvert.SerializeObject(model);
-        //        StringContent content =
-        //            new StringContent(jsonModel, Encoding.UTF8, "application/json");
-        //        HttpResponseMessage response =
-        //            await client.PostAsync(request, content);
-        //        if (response.IsSuccessStatusCode)
-        //        {
-        //            string data =
-        //                await response.Content.ReadAsStringAsync();
-        //            JObject jsonObject = JObject.Parse(data);
-        //            string token =
-        //                jsonObject.GetValue("response").ToString();
-        //            return token;
-        //        }
-        //        else
-        //        {
-        //            return null;
-        //        }
-        //    }
-        //}
 
         private async Task<T> CallApiAsync<T>(string request)
         {
@@ -109,6 +77,9 @@ namespace ProyectoTienda2.Services
                 }
             }
         }
+
+
+        
 
         //METODO PROTEGIDO
 
@@ -232,6 +203,29 @@ namespace ProyectoTienda2.Services
                     HelperCryptography.EncryptPassword(password, artist.Salt);
                 artist.Imagen = imagen;
                 artist.ImagenFondo = imagenfondo;
+
+                string json = JsonConvert.SerializeObject(artist);
+
+                StringContent content =
+                    new StringContent(json, Encoding.UTF8, "application/json");
+                HttpResponseMessage response =
+                    await client.PostAsync(request, content);
+            }
+        }
+        public async Task LoginArtistaAsync(string email, string password)
+        {
+
+            using (HttpClient client = new HttpClient())
+            {
+                string request = "api/Managed/LoginArtista/" + email + "/" + password;
+                client.BaseAddress = new Uri(this.UrlApiProyectoTienda);
+                client.DefaultRequestHeaders.Clear();
+                client.DefaultRequestHeaders.Accept.Add(this.Header);
+
+                Artista artist = new Artista();
+                artist.Email = email;
+                artist.Password =
+                    HelperCryptography.EncryptPassword(password, artist.Salt);
 
                 string json = JsonConvert.SerializeObject(artist);
 

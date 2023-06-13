@@ -1,8 +1,9 @@
 ﻿@model DatosArtista
 
 @{
-    List<int> favoritos =
-                        Context.Session.GetObject<List<int>>("FAVORITOS");
+    var memoryCache = ViewContext.HttpContext.RequestServices.GetService<IMemoryCache>();
+
+    var favoritos = memoryCache.Get<List<int>>("cuadrosfavoritos");
 }
 
 <link rel="stylesheet" href="https://demos.creative-tim.com/notus-js/assets/styles/tailwind.css">

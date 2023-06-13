@@ -1,4 +1,3 @@
-﻿using Azure.Storage.Blobs;
 using Azure.Storage.Sas;
 using Microsoft.AspNetCore.Mvc;
 using ProyectoTienda2.Extensions;
@@ -20,6 +19,7 @@ namespace ProyectoTienda2.Controllers
 
         public HomeController
             (ServiceApi service, ServiceStorageS3 serviceS3, IConfiguration configuration)
+
         {
             this.service = service;
             this.serviceS3 = serviceS3;
@@ -30,17 +30,22 @@ namespace ProyectoTienda2.Controllers
         {
             if(idfavorito != null)
             {
-                List<int> favoritos;
-                if(HttpContext.Session.GetObject<List<int>>("FAVORITOS") == null)
-                {
-                    favoritos = new List<int>();
-                }
-                else
-                {
-                    favoritos = HttpContext.Session.GetObject<List<int>>("FAVORITOS");
-                }
-                favoritos.Add(idfavorito.Value);
-                HttpContext.Session.SetObject("FAVORITOS", favoritos);
+                //List<int> favoritos;
+                //if(HttpContext.Session.GetObject<List<int>>("FAVORITOS") == null)
+                //{
+                //    favoritos = new List<int>();
+                //}
+                //else
+                //{
+                //    favoritos = HttpContext.Session.GetObject<List<int>>("FAVORITOS");
+                //}
+                //favoritos.Add(idfavorito.Value);
+                //HttpContext.Session.SetObject("FAVORITOS", favoritos);
+                
+                DatosArtista cuadro = await this.service.FindInfoArteAsync(idfavorito.Value);
+                await this.serviceAws.AddFavoritoAsync(cuadro.infoProducto);
+               
+
             }
             DatosArtista infoArtes = await this.service.GetInfoArteAsync();
             
@@ -54,33 +59,24 @@ namespace ProyectoTienda2.Controllers
         {
             List<int> idsFavoritos =
                 HttpContext.Session.GetObject<List<int>>("FAVORITOS");
-            if (idsFavoritos == null)
-            {
-                ViewData["MENSAJE"] = "No existen favoritos almacenados";
-                ViewData["BUCKETURL"] = this.BucketUrl;
-                return View();
-            }
-            else
-            {
-                if (ideliminar != null)
-                {
-                    idsFavoritos.Remove(ideliminar.Value);
-                    if (idsFavoritos.Count == 0)
-                    {
-                        HttpContext.Session.Remove("FAVORITOS");
-                    }
-                    else
-                    {
-                        HttpContext.Session.SetObject("FAVORITOS", idsFavoritos);
-                    }
-                }
-                DatosArtista infoArtes = this.service.GetInfoArteSession(idsFavoritos);
 
                 ViewData["BUCKETURL"] = this.BucketUrl;
+
+
+            DatosArtista cuadros = await this.serviceAws.GetFavoritosAsync();
+            return View(cuadros);
 
                 return View(infoArtes);
-            }
+            
         }
+
+
+        public async Task<IActionResult> EliminarFavorito(int idfavorito)
+        {
+            await this.serviceAws.DeleteFavoritoAsync(idfavorito);
+            return RedirectToAction("ProductosFavoritos");
+        }
+
 
         public async Task<IActionResult> Details(int idproducto)
         {

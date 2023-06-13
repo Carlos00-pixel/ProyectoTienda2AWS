@@ -14,18 +14,26 @@ string connectionString = builder.Configuration.GetConnectionString("MySqlProyec
 builder.Services.AddAWSService<IAmazonS3>();
 
 builder.Services.AddTransient<ServiceApi>();
-builder.Services.AddTransient<ServiceStorageS3>();
-
+builder.Services.AddTransient<ServiceStorageBlobs>();
+builder.Services.AddTransient<ServiceAwsCache>();
 builder.Services.AddDbContext<ProyectoTiendaContext>
     (options => options.UseMySql(connectionString
     , ServerVersion.AutoDetect(connectionString)));
+builder.Services.AddStackExchangeRedisCache(options =>
+{
+    options.Configuration = "cache-proyecto-tienda.1xwnbt.ng.0001.use1.cache.amazonaws.com:6379";
+    options.InstanceName = "cache-proyecto-tienda";
+});
 
+builder.Services.AddDistributedMemoryCache();
+builder.Services.AddHttpContextAccessor();
 builder.Services.AddSession(options =>
 {
     options.IdleTimeout = TimeSpan.FromMinutes(30);
 });
 
-builder.Services.AddMemoryCache();
+builder.Services.AddAntiforgery();
+builder.Services.AddControllersWithViews(options => options.EnableEndpointRouting = false);
 
 //SEGURIDAD
 builder.Services.AddAuthentication(options =>
