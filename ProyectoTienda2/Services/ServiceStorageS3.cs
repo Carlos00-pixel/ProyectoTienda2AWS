@@ -10,15 +10,11 @@ namespace ProyectoTienda2.Services
     {
         private string BucketName;
         private IAmazonS3 ClientS3;
-        //SECRETO
-        string miSecreto = HelperSecretManager.GetSecretAsync().Result;
 
         public ServiceStorageS3(IConfiguration configuration
-            , IAmazonS3 clientS3)
+            , IAmazonS3 clientS3, KeysModel model)
         {
-            KeysModel model = JsonConvert.DeserializeObject<KeysModel>(miSecreto);
-            this.BucketName = configuration.GetValue<string>
-                ("AWS:BucketName");
+            this.BucketName = model.BucketName;
             this.ClientS3 = clientS3;
         }
 

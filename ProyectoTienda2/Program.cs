@@ -12,11 +12,11 @@ var builder = WebApplication.CreateBuilder(args);
 
 
 // Add services to the container.
-string connectionString = builder.Configuration.GetConnectionString("MySqlProyectoTienda");
+//string connectionString = builder.Configuration.GetConnectionString("MySqlProyectoTienda");
 
-string secrets =
-            HelperSecretManager.GetSecretAsync().Result;
-KeysModel model = JsonConvert.DeserializeObject<KeysModel>(secrets);
+string miSecreto = await HelperSecretManager.GetSecretAsync();
+KeysModel model = JsonConvert.DeserializeObject<KeysModel>(miSecreto);
+builder.Services.AddSingleton<KeysModel>(model);
 
 builder.Services.AddAWSService<IAmazonS3>();
 
