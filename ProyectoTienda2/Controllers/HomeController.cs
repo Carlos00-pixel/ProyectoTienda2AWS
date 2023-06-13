@@ -1,4 +1,3 @@
-﻿using Azure.Storage.Blobs;
 using Azure.Storage.Sas;
 using Microsoft.AspNetCore.Mvc;
 using ProyectoTienda2.Extensions;
@@ -13,21 +12,18 @@ namespace ProyectoTienda2.Controllers
 {
     public class HomeController : Controller
     {
-        private readonly ILogger<HomeController> _logger;
 
         private ServiceApi service;
-        private ServiceStorageBlobs serviceBlob;
-        private string containerName = "proyectotienda";
-        private ServiceAwsCache serviceAws;
+        private ServiceStorageS3 serviceS3;
+        private string BucketUrl;
 
         public HomeController
-            (ILogger<HomeController> logger, ServiceApi service,
-            ServiceStorageBlobs serviceBlob, ServiceAwsCache serviceAws)
+            (ServiceApi service, ServiceStorageS3 serviceS3, IConfiguration configuration)
+
         {
-            _logger = logger;
             this.service = service;
-            this.serviceBlob = serviceBlob;
-            this.serviceAws = serviceAws;
+            this.serviceS3 = serviceS3;
+            this.BucketUrl = configuration.GetValue<string>("AWS:BucketUrl");
         }
 
         public async Task<IActionResult> Index(int? idfavorito)
@@ -52,28 +48,9 @@ namespace ProyectoTienda2.Controllers
 
             }
             DatosArtista infoArtes = await this.service.GetInfoArteAsync();
-            foreach (InfoProducto c in infoArtes.listaProductos)
-            {
-                string blobName = c.Imagen;
-                if (blobName != null)
-                {
-                    BlobContainerClient blobContainerClient = await this.serviceBlob.GetContainerAsync(this.containerName);
-                    BlobClient blobClient = blobContainerClient.GetBlobClient(blobName);
+            
+            ViewData["BUCKETURL"] = this.BucketUrl;
 
-                    BlobSasBuilder sasBuilder = new BlobSasBuilder()
-                    {
-                        BlobContainerName = this.containerName,
-                        BlobName = blobName,
-                        Resource = "b",
-                        StartsOn = DateTimeOffset.UtcNow,
-                        ExpiresOn = DateTime.UtcNow.AddHours(1),
-                    };
-
-                    sasBuilder.SetPermissions(BlobSasPermissions.Read);
-                    var uri = blobClient.GenerateSasUri(sasBuilder);
-                    c.Imagen = uri.ToString();
-                }
-            }
             return View(infoArtes);
         }
 
@@ -82,52 +59,13 @@ namespace ProyectoTienda2.Controllers
         {
             List<int> idsFavoritos =
                 HttpContext.Session.GetObject<List<int>>("FAVORITOS");
-            //if (idsFavoritos == null)
-            //{
-            //    ViewData["MENSAJE"] = "No existen favoritos almacenados";
-            //    return View();
-            //}
-            //else
-            //{
-            //    if (ideliminar != null)
-            //    {
-            //        idsFavoritos.Remove(ideliminar.Value);
-            //        if (idsFavoritos.Count == 0)
-            //        {
-            //            HttpContext.Session.Remove("FAVORITOS");
-            //        }
-            //        else
-            //        {
-            //            HttpContext.Session.SetObject("FAVORITOS", idsFavoritos);
-            //        }
-            //    }
+
+                ViewData["BUCKETURL"] = this.BucketUrl;
+
+
             DatosArtista cuadros = await this.serviceAws.GetFavoritosAsync();
             return View(cuadros);
 
-            DatosArtista infoArtes = this.service.GetInfoArteSession(idsFavoritos);
-                
-                //foreach (InfoProducto c in infoArtes.listaProductos)
-                //{
-                //    string blobName = c.Imagen;
-                //    if (blobName != null)
-                //    {
-                //        BlobContainerClient blobContainerClient = await this.serviceBlob.GetContainerAsync(this.containerName);
-                //        BlobClient blobClient = blobContainerClient.GetBlobClient(blobName);
-
-                //        BlobSasBuilder sasBuilder = new BlobSasBuilder()
-                //        {
-                //            BlobContainerName = this.containerName,
-                //            BlobName = blobName,
-                //            Resource = "b",
-                //            StartsOn = DateTimeOffset.UtcNow,
-                //            ExpiresOn = DateTime.UtcNow.AddHours(1),
-                //        };
-
-                //        sasBuilder.SetPermissions(BlobSasPermissions.Read);
-                //        var uri = blobClient.GenerateSasUri(sasBuilder);
-                //        c.Imagen = uri.ToString();
-                //    }
-                //}
                 return View(infoArtes);
             
         }
@@ -144,31 +82,14 @@ namespace ProyectoTienda2.Controllers
         {
             DatosArtista infoProduct = await this.service.FindInfoArteAsync(idproducto);
 
-            string blobName = infoProduct.infoProducto.Imagen;
-            if (blobName != null)
-            {
-                BlobContainerClient blobContainerClient = await this.serviceBlob.GetContainerAsync(this.containerName);
-                BlobClient blobClient = blobContainerClient.GetBlobClient(blobName);
-
-                BlobSasBuilder sasBuilder = new BlobSasBuilder()
-                {
-                    BlobContainerName = this.containerName,
-                    BlobName = blobName,
-                    Resource = "b",
-                    StartsOn = DateTimeOffset.UtcNow,
-                    ExpiresOn = DateTime.UtcNow.AddHours(1),
-                };
-
-                sasBuilder.SetPermissions(BlobSasPermissions.Read);
-                var uri = blobClient.GenerateSasUri(sasBuilder);
-                infoProduct.infoProducto.Imagen = uri.ToString();
-            }
+            ViewData["BUCKETURL"] = this.BucketUrl;
 
             return View(infoProduct);
         }
 
         public IActionResult NuevoProducto()
         {
+            ViewData["BUCKETURL"] = this.BucketUrl;
             return View();
         }
 
@@ -176,15 +97,15 @@ namespace ProyectoTienda2.Controllers
         public async Task<IActionResult> NuevoProducto
             (string titulo, int precio, string descripcion, IFormFile file, int idartista)
         {
-            string blobName = file.FileName;
+            string bucketName = file.FileName;
             using (Stream stream = file.OpenReadStream())
             {
-                await this.serviceBlob.UploadBlobAsync(this.containerName, blobName, stream);
+                await this.serviceS3.UploadFileAsync(bucketName, stream);
             }
 
             idartista = int.Parse(HttpContext.User.FindFirst(ClaimTypes.NameIdentifier).Value);
 
-            await this.service.AgregarProductoAsync(titulo, precio, descripcion, blobName, idartista);
+            await this.service.AgregarProductoAsync(titulo, precio, descripcion, bucketName, idartista);
             return RedirectToAction("Index");
         }
 

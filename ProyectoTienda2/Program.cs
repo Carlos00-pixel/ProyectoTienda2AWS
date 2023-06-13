@@ -1,3 +1,4 @@
+using Amazon.S3;
 using Azure.Storage.Blobs;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.EntityFrameworkCore;
@@ -6,12 +7,11 @@ using ProyectoTienda2.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
-string azureKeys = builder.Configuration.GetValue<string>("AzureKeys:StorageAccount");
-BlobServiceClient blobServiceClient = new BlobServiceClient(azureKeys);
-builder.Services.AddTransient<BlobServiceClient>(x => blobServiceClient);
 
 // Add services to the container.
 string connectionString = builder.Configuration.GetConnectionString("MySqlProyectoTienda");
+
+builder.Services.AddAWSService<IAmazonS3>();
 
 builder.Services.AddTransient<ServiceApi>();
 builder.Services.AddTransient<ServiceStorageBlobs>();

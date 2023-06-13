@@ -20,7 +20,7 @@
                         <div class="rounded overflow-hidden shadow-lg">
                             <a asp-controller="Home" asp-action="Details" asp-route-idproducto="@info.IdInfoArte">
                                 <div class="relative">
-                                    <img src="@info.Imagen" style="width: 500px;height: 500px;">
+                                    <img src="@ViewData["BUCKETURL"]@info.Imagen" style="width: 500px;height: 500px;">
                                     <div class="hover:bg-transparent transition duration-300 absolute bottom-0 top-0 right-0 left-0 bg-gray-900 opacity-25"></div>
                                     <a asp-controller="Artista" asp-action="DetallesArtista" asp-route-idartista="@info.IdArtista">
                                         <div class="absolute bottom-0 left-0 bg-indigo-600 px-4 py-2 text-white text-sm hover:bg-white hover:text-indigo-600 transition duration-500 ease-in-out">

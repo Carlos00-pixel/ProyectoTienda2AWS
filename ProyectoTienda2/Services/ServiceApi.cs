@@ -17,25 +17,31 @@ namespace ProyectoTienda2.Services
         private MediaTypeWithQualityHeaderValue Header;
         private string UrlApiProyectoTienda;
         private ProyectoTiendaContext context;
+        private ServiceStorageS3 serviceS3;
 
-        public ServiceApi(IConfiguration configuration, ProyectoTiendaContext context)
+        public ServiceApi(IConfiguration configuration, ProyectoTiendaContext context,
+            ServiceStorageS3 serviceS3)
         {
             this.UrlApiProyectoTienda =
                 configuration.GetValue<string>("ApiUrls:ApiProyectoTienda");
             this.Header =
                 new MediaTypeWithQualityHeaderValue("application/json");
             this.context = context;
+            this.serviceS3 = serviceS3;
         }
 
         private async Task<T> CallApiAsync<T>(string request)
         {
             using (HttpClient client = new HttpClient())
             {
-                client.BaseAddress = new Uri(this.UrlApiProyectoTienda);
+                //LO UNICO QUE DEBEMOS TENER EN CUENTA ES 
+                //QUE LAS PETICIONES, A VECES SE QUEDAN ATASCADAS
+                //SI LAS HACEMOS MEDIANTE .BaseAddress + Request
                 client.DefaultRequestHeaders.Clear();
                 client.DefaultRequestHeaders.Accept.Add(this.Header);
+                string url = this.UrlApiProyectoTienda + request;
                 HttpResponseMessage response =
-                    await client.GetAsync(request);
+                    await client.GetAsync(url);
                 if (response.IsSuccessStatusCode)
                 {
                     T data = await response.Content.ReadAsAsync<T>();

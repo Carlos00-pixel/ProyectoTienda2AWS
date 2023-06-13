@@ -1,6 +1,4 @@
-﻿using Azure.Storage.Blobs;
-using Azure.Storage.Sas;
-using Microsoft.AspNetCore.Authentication;
+﻿using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Mvc;
 using ProyectoTienda2.Services;
@@ -12,13 +10,14 @@ namespace ProyectoTienda2.Controllers
     public class ManagedController : Controller
     {
         private ServiceApi service;
-        private ServiceStorageBlobs serviceBlob;
-        private string containerName = "proyectotienda";
+        private ServiceStorageS3 serviceS3;
+        private string BucketUrl;
 
-        public ManagedController(ServiceApi service, ServiceStorageBlobs serviceBlob)
+        public ManagedController(ServiceApi service, ServiceStorageS3 serviceS3, IConfiguration configuration)
         {
             this.service = service;
-            this.serviceBlob = serviceBlob;
+            this.serviceS3 = serviceS3;
+            this.BucketUrl = configuration.GetValue<string>("AWS:BucketUrl");
         }
 
         #region CLIENTE
@@ -48,10 +47,8 @@ namespace ProyectoTienda2.Controllers
                     (new Claim("Nombre", cliente.Nombre));
                 identity.AddClaim
                     (new Claim("Apellidos", cliente.Apellidos));
-
-               string imagenPerfil = await this.serviceBlob.GetBlobAsync(this.containerName, cliente.Imagen);
                 identity.AddClaim
-                    (new Claim("Imagen", imagenPerfil));
+                    (new Claim("Imagen", cliente.Imagen));
                 identity.AddClaim
                     (new Claim(ClaimTypes.Role, "Cliente"));
 
@@ -77,13 +74,13 @@ namespace ProyectoTienda2.Controllers
         public async Task<IActionResult> RegisterCliente
             (string nombre, string apellidos, string email, string password, IFormFile file)
         {
-            string blobName = file.FileName;
+            string bucketName = file.FileName;
             using (Stream stream = file.OpenReadStream())
             {
-                await this.serviceBlob.UploadBlobAsync(this.containerName, blobName, stream);
+                await this.serviceS3.UploadFileAsync(bucketName, stream);
             }
             await this.service.RegistrarClienteAsync
-                (nombre, apellidos, email, password, blobName);
+                (nombre, apellidos, email, password, bucketName);
             ViewData["MENSAJE"] = "Usuario registrado correctamente";
             return View();
         }
@@ -101,7 +98,7 @@ namespace ProyectoTienda2.Controllers
         public async Task<IActionResult> LoginArtista(string email
             , string password)
         {
-
+            ViewData["BUCKETURL"] = this.BucketUrl;
             Artista artista =
             await this.service.ExisteArtista(email, password);
             if (artista != null)
@@ -126,9 +123,8 @@ namespace ProyectoTienda2.Controllers
                     identity.AddClaim
                     (new Claim("Apellidos", artista.Apellidos));
                 }
-                string imagenPerfil = await this.serviceBlob.GetBlobAsync(this.containerName, artista.Imagen);
                 identity.AddClaim
-                    (new Claim("Imagen", imagenPerfil));
+                    (new Claim("Imagen", artista.Imagen));
                 identity.AddClaim
                     (new Claim(ClaimTypes.Role, "Artista"));
 
@@ -136,25 +132,7 @@ namespace ProyectoTienda2.Controllers
                 await HttpContext.SignInAsync
                     (CookieAuthenticationDefaults.AuthenticationScheme
                     , user);
-                string blobName = artista.Imagen;
-                if (blobName != null)
-                {
-                    BlobContainerClient blobContainerClient = await this.serviceBlob.GetContainerAsync(containerName);
-                    BlobClient blobClient = blobContainerClient.GetBlobClient(blobName);
-
-                    BlobSasBuilder sasBuilder = new BlobSasBuilder()
-                    {
-                        BlobContainerName = this.containerName,
-                        BlobName = blobName,
-                        Resource = "b",
-                        StartsOn = DateTimeOffset.UtcNow,
-                        ExpiresOn = DateTime.UtcNow.AddHours(1),
-                    };
-
-                    sasBuilder.SetPermissions(BlobSasPermissions.Read);
-                    var uri = blobClient.GenerateSasUri(sasBuilder);
-                    ViewData["URI"] = uri;
-                }
+                
                 return RedirectToAction("Index", "Home");
             }
             else
@@ -174,16 +152,16 @@ namespace ProyectoTienda2.Controllers
             (string nombre, string apellidos, string nick, string descripcion,
             string email, string password, IFormFile file, string imagenfondo)
         {
-            string blobName = file.FileName;
+            string bucketName = file.FileName;
 
             using (Stream stream = file.OpenReadStream())
             {
-                await this.serviceBlob.UploadBlobAsync(this.containerName, blobName, stream);
+                await this.serviceS3.UploadFileAsync(bucketName, stream);
             }
             imagenfondo = "default.jpg";
             await this.service.RegistrarArtistaAsync
                 (nombre, apellidos, nick, descripcion,
-                email, password, blobName, imagenfondo);
+                email, password, bucketName, imagenfondo);
             ViewData["MENSAJE"] = "Usuario registrado correctamente";
             return View();
         }
