@@ -2,7 +2,7 @@
 using Amazon.SecretsManager;
 using Amazon;
 
-namespace MvcAWSApiConciertosMySql.Helpers
+namespace ProyectoTienda2.Helpers
 {
     public static class HelperSecretManager
     {
